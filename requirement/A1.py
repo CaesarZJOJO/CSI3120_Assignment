@@ -73,9 +73,33 @@ def parse_tokens(s_: str) -> Union[List[str], bool]:
     """
 
     s = s_[:]  #  Don't modify the original input string
-    # TODO
 
-    return []
+    s = s_.replace(" ", "")  # Remove all whitespace
+    tokens = []
+    i = 0
+
+    while i < len(s):
+        char = s[i]
+
+        if char == '(' or char == ')':  # Parentheses
+            tokens.append(char)
+            i += 1
+        elif char == '\\':  # Lambda
+            tokens.append(char)
+            i += 1
+        elif char == '.':  # Dot
+            tokens.append(char)
+            i += 1
+        elif char.isalpha():  # Variable starting with a letter
+            var_name = char
+            i += 1
+            while i < len(s) and s[i].isalnum():  # Collect the rest of the alphanumeric variable name
+                var_name += s[i]
+                i += 1
+            tokens.append(var_name)
+        else:
+            return False  # Invalid character
+    return tokens
 
 
 def read_lines_from_txt_check_validity(fp: [str, os.PathLike]) -> None:
@@ -141,6 +165,12 @@ def build_parse_tree(tokens: List[str]) -> ParseTree:
 
 
 if __name__ == "__main__":
+    test_expression = "\\x. (a b)"
+    tokens = parse_tokens(test_expression)
+    if tokens:
+        print(f"Tokens for expression '{test_expression}': {tokens}")
+    else:
+        print(f"Invalid expression: {test_expression}")
 
     print("\n\nChecking valid examples...")
     read_lines_from_txt_check_validity(valid_examples_fp)
