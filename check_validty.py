@@ -32,6 +32,8 @@ def is_valid_var_name(s: str) -> bool:
             return False
     return True
 
+
+
 def parse_tokens(s_: str) -> Union[List[str], bool]:
     """
     Gets the final tokens for valid strings as a list of strings, only for valid syntax,
@@ -48,38 +50,51 @@ def parse_tokens(s_: str) -> Union[List[str], bool]:
     i = 0
     open_brackets = 0  # To track open parentheses
     last_token_was_lambda = False  # To track if the last token was a lambda
+    dot_opened_paren = False  # To track if a parenthesis was opened by a dot
+    error_a = error_b = error_c = error_d = error_e = error_f = None  # Initialize error variables
+    error_1 = error_2 = None
 
     while i < len(s):
         if s[i] == '\\':  # Lambda abstraction
             tokens.append('\\')
             last_token_was_lambda = True
             i += 1
-            if i >= len(s) or s[i] not in alphabet_chars:
-                print(f"Invalid lambda expression at index {i - 1}")
-                return False
+
+            # Error E: Check if '\' is followed by a space
+            if i < len(s) and s[i] == ' ':
+                error_e = f"Invalid space inserted after \\ at index {i - 1}."
+                break
+            
+
+
+            # Error F: Check if '\' is not followed by a valid variable
+            if i < len(s) and s[i] not in alphabet_chars:
+                error_f = f"Backslash not followed by a variable name at index {i - 1}."
+                break
+
+            
+
+            # Proceed to parse variable if no errors so far
             var_start = i
             while i < len(s) and s[i] in var_chars:
                 i += 1
             var_name = s[var_start:i]
             if not is_valid_var_name(var_name):
-                print(f"Invalid variable name '{var_name}'")
-                return False
+                error_c = f"Invalid variable name '{var_name}'."
+
             tokens.append(var_name)
 
-                        # After parsing the variable, we must check for a valid expression or parentheses
+            # Error D: Check if there's no valid expression after the variable
             if i >= len(s):  # If there's nothing after the variable
-                print(f"Invalid lambda expression at index {var_start - 1}")
-                return False
+                error_d = f"Invalid lambda expression at {var_start - 1}."
 
-            # If there's a space after the variable, skip it and check for valid expression or parentheses
-            if s[i] == ' ':
+            # Handle case with space after variable, then parentheses
+            if i < len(s) and s[i] == ' ':
                 i += 1
                 if i < len(s) and s[i] == '(':  # Allow parentheses after space
                     continue
                 elif i >= len(s):  # If there's nothing after the space
-                    print(f"Invalid lambda expression at index {var_start - 1}")
-                    return False
-            
+                    error_d = f"Invalid lambda expression at {var_start - 1}."
 
         elif s[i] in alphabet_chars:  # Variable name
             var_start = i
@@ -87,7 +102,7 @@ def parse_tokens(s_: str) -> Union[List[str], bool]:
                 i += 1
             var_name = s[var_start:i]
             if not is_valid_var_name(var_name):
-                print(f"Invalid variable name '{var_name}'")
+                print(f"Invalid variable name '{var_name}'.")
                 return False
             tokens.append(var_name)
             last_token_was_lambda = False
@@ -100,57 +115,100 @@ def parse_tokens(s_: str) -> Union[List[str], bool]:
 
             # Check if the next character is a closing parenthesis, indicating empty parentheses
             if i < len(s) and s[i] == ')':
-                print(f"Missing expression for parenthesis at index {i - 1}")
+                print(f"Missing expression for parenthesis at index {i - 1}.")
                 return False
 
             # Check if the entire string will have a matching closing parenthesis
             if ')' not in s[i:]:
-                print(f"Bracket ( at index {i - 1} is not matched with a closing bracket ')'")
+                print(f"Bracket ( at index {i - 1} is not matched with a closing bracket ')'.")
                 return False
 
         elif s[i] == ')':  # Closing parenthesis
             if open_brackets == 0:
-                print(f"Bracket ) at index {i} is not matched with an opening bracket '('")
+                print(f"Bracket ) at index {i} is not matched with an opening bracket '('.")
                 return False
             tokens.append(')')
             open_brackets -= 1
             i += 1
             last_token_was_lambda = False
 
+        
+
         elif s[i] == '.':  # Handle dot
             # Check if there's a space before the dot (invalid usage)
             if i > 0 and s[i - 1] == ' ':
-                print(f"Must have a variable name before character '.' at index {i}")
+                print(f"Must have a variable name before character '.' at index {i-1}.")
+                return False
+            elif i > 0 and s[i-1] not in alphabet_chars:
+                print(f"Must have a variable name before character '.' at index {i-1}.")
                 return False
             # A dot can only appear after a lambda abstraction variable, check if valid
             if not last_token_was_lambda:
-                print(f"Encountered dot at invalid index {i}")
+                print(f"Encountered dot at invalid index {i}.")
                 return False
             tokens.append('(')
+            dot_opened_paren = True
             i += 1
             last_token_was_lambda = False
-
+        
         elif s[i] == ' ':  # Ignore spaces, but check for invalid usage with a dot
             # If there's a space followed by a dot, raise an error
             if i + 1 < len(s) and s[i + 1] == '.':
-                print(f"Must have a variable name before character '.' at index {i + 1}")
+                print(f"Must have a variable name before character '.' at index {i-1}.")
                 return False
             i += 1
 
-        else:
-            print(f"Error at index '{i}' with invalid character +.")
-            return False
 
-    # Check if all open parentheses are closed
-    if open_brackets > 0:
-        print(f"Unmatched opening bracket '('")
+        else:
+            if s[i] in numeric_chars:
+                print(f"Error at index {i}, variables cannot begin with digits.")
+            else:
+                print(f"Error at index {i} with invalid character {s[i]}.")
+            return False
+    
+    # Error A: Check if '\' is the last character
+    if s[len(s)-1]== '\\': 
+        print(f"Missing complete lambda expression starting at index {len(s)-1}.")
         return False
 
-    # Handle dot-based grouping by closing parenthesis at the end
-    if '.' in s:
-        tokens.append(')')
+    # Centralized error handling
+    if error_a:
+        print(error_a)
+        return False
+    if error_b:
+        print(error_b)
+        return False
+    if error_c:
+        print(error_c)
+        return False
+    if error_d:
+        print(error_d)
+        return False
+    if error_e:
+        print(error_e)
+        return False
+    if error_f:
+        print(error_f)
+        return False
+    if error_1:
+        print(error_1)
+        return False
+    if error_2:
+        print(error_2)
+        return False
+    
+    # Ensure any open parentheses caused by dot are closed
+    if dot_opened_paren:
+        tokens.append(')')  # Close the parenthesis at the end if dot opened one
+
 
     return tokens
+
+
+
+
+
+
 
 
 
