@@ -42,6 +42,7 @@ class Node:
         self.elem = elem
         self.children = []
 
+
     def add_child_node(self, node: 'Node') -> None:
         self.children.append(node)
 
@@ -51,16 +52,30 @@ class ParseTree:
     Attributes:
         root: the root of the tree
     """
-    def __init__(self, root):
+    def __init__(self, root: Node):
         self.root = root
 
     def print_tree(self, node: Optional[Node] = None, level: int = 0) -> None:
+        # If no node is provided, start from the root
         if node is None:
             node = self.root
-        elem_str = "_".join(node.elem) if node.elem else ""
-        print("----" * level + elem_str)
+                # Only print the three empty lines for the root (when level == 0)
+        if level == 0:
+            print("\n" * 3, end="")
+
+        # Join the elements of the node to form a single string, using '_' as a separator
+        node_str = "_".join(node.elem)
+
+        # Print the current node with indentation based on the level in the tree
+        if node_str !="":
+            print("----" * level + node_str)
+
+        # Recursively print each child node, increasing the level by 1
         for child in node.children:
             self.print_tree(child, level + 1)
+
+
+
 
 def parse_tokens(s_: str) -> Union[List[str], bool]:
     """
@@ -92,15 +107,11 @@ def parse_tokens(s_: str) -> Union[List[str], bool]:
             if i < len(s) and s[i] == ' ':
                 error_e = f"Invalid space inserted after \\ at index {i - 1}."
                 break
-            
-
 
             # Error F: Check if '\' is not followed by a valid variable
             if i < len(s) and s[i] not in alphabet_chars:
                 error_f = f"Backslash not followed by a variable name at index {i - 1}."
                 break
-
-            
 
             # Proceed to parse variable if no errors so far
             var_start = i
@@ -251,46 +262,126 @@ def read_lines_from_txt_check_validity(fp: Union[str, os.PathLike]) -> None:
     else:
         print(f"Some lines are invalid")
 
-def read_lines_from_txt_output_parse_tree(fp: Union[str, os.PathLike]) -> None:
-    """
-        Reads each line from a .txt file, and then
-        parses each string to yield a tokenized output string, to be used in constructing a parse tree. The
-        parse tree should call print_tree() to print its content to the console.
-        In the case of a non-valid line, the corresponding error message is printed (not necessarily within
-        this function, but possibly within the parse_tokens function).
-        :param fp: The file path of the lines to parse
-        """
+
+def read_lines_from_txt_output_parse_tree(fp: [str, os.PathLike]) -> None:
     lines = read_lines_from_txt(fp)
-    for l in lines:
-        tokens = parse_tokens(l)
+    for line in lines:
+        tokens = parse_tokens(line)
         if tokens:
-            print("\n")
-            parse_tree2 = build_parse_tree(tokens)
-            parse_tree2.print_tree()
+            parse_tree = build_parse_tree(tokens)
+            parse_tree.print_tree()
+        else:
+            print(f"Error parsing line: {line}")
 
-def build_parse_tree_rec(tokens: List[str], node: Optional[Node] = None) -> Node:
-    """
-    An inner recursive inner function to build a parse tree
-    :param tokens: A list of token strings
-    :param node: A Node object
-    :return: a node with children whose tokens are variables, parenthesis, slashes, or the inner part of an expression
-    """
-    if node is None:
-        node = Node([])
 
-    while tokens:
-        token = tokens.pop(0)
-        if token == '(':  # Start of a new sub-expression
-            child_node = Node(['('])
-            node.add_child_node(child_node)
-            inner_node = build_parse_tree_rec(tokens, Node([]))
-            child_node.add_child_node(inner_node)
-        elif token == ')':  # End of the current sub-expression
-            return node
-        else:  # Regular token or lambda variable
-            node.add_child_node(Node([token]))
 
-    return node
+def build_parse_tree_rec(tokens: List[str]) -> Node:
+    # Root node with all tokens
+    root = Node(elem=tokens.copy())  # Copy tokens to avoid modifying the original list
+
+    def parse(tokens: List[str], node: Node):
+        while tokens:
+            token = tokens.pop(0)
+            
+            if token.isalnum():  # Case of variable like 'a'
+                var = Node([token])
+                node.add_child_node(var)
+
+                # Check if the next token is a lambda expression '\' 
+                if tokens and tokens[0] == '\\':
+                    # All remaining tokens after 'a' (including '\') become the second child node
+                    lambd = Node(tokens.copy())
+                    node.add_child_node(lambd)
+                    
+                    # Recursively parse the rest of the expression
+                    parse(tokens, lambd)
+                else:
+                    parse(tokens,node)
+                return  # Stop parsing after handling the first token and the lambda expression
+            
+            elif token == '\\':  # Handling the lambda expression if it appears first
+                
+                lvar = tokens.pop(0)  # The variable after '\'
+
+                # Add '\' and 'lvar' as separate child nodes
+                node.add_child_node(Node([token]))  # '\' as a child
+                node.add_child_node(Node([lvar]))  # 'x' (the variable) as a child
+
+                # After lambda expression, process all subsequent tokens as separate nodes
+                while tokens and tokens[0] != '(':  # Process until we reach a '(' or run out of tokens
+                    next_token = tokens.pop(0)
+                    if next_token:  # Ensure we don't process empty tokens
+                        node.add_child_node(Node([next_token]))  # Add each token as a separate node
+
+                if tokens and tokens[0] == '(':  # Check for parentheses after the lambda expression
+                    i = []
+                    d = 0
+                    while tokens:
+                        t = tokens.pop(0)
+                        if t == '(':
+                            d += 1
+                        elif t == ')':
+                            d -= 1
+                        i.append(t)
+                        if d == 0:
+                            break
+                    # Recursively parse the inside of the parentheses
+
+                    inner = build_parse_tree_rec(i)  # Remove outer parentheses
+                    node.add_child_node(inner)
+                    
+                else:
+                    # If no parentheses, parse the rest of the expression
+                    expr_node = build_parse_tree_rec(tokens)
+                    node.add_child_node(expr_node)
+            
+            # first is (
+            elif token == '(':  # Handling parentheses expression
+                # Collect the content inside the parentheses
+                i = ['(']
+                d = 1
+                while tokens:
+                    t = tokens.pop(0)
+                    i.append(t)
+                    if t == '(':
+                        d += 1
+                    elif t == ')':
+                        d -= 1
+                    if d == 0:
+                        break
+
+                # Create a node for the entire parenthesis expression
+                paren_exp = Node(i)
+                node.add_child_node(paren_exp)
+
+                # Special case: if the subexpression has only one token inside parentheses
+                if len(i[1:-1]) == 1:  # This means it's like '(a)'
+                    leftp= Node(['('])
+                    rightp=Node([')'])
+                    paren_exp.add_child_node(leftp)
+                    paren_exp.add_child_node(Node([i[1]]))
+                    paren_exp.add_child_node(rightp)
+                else:
+                    # Recursively process the content inside parentheses
+                    leftp= Node(['('])
+                    rightp=Node([')'])
+                    paren_exp.add_child_node(leftp)
+                    inner = build_parse_tree_rec(i[1:-1])  # Remove outer parentheses
+                    paren_exp.add_child_node(inner)
+                    paren_exp.add_child_node(rightp)
+
+    # Start parsing the tokens for the root node
+    parse(tokens, root)
+    
+    return root
+
+
+
+
+
+
+
+
 
 def build_parse_tree(tokens: List[str]) -> ParseTree:
     """
@@ -300,6 +391,7 @@ def build_parse_tree(tokens: List[str]) -> ParseTree:
     """
     pt = ParseTree(build_parse_tree_rec(tokens))
     return pt
+
 
 if __name__ == "__main__":
 
