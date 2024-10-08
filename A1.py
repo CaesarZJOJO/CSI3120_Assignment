@@ -265,14 +265,12 @@ def read_lines_from_txt_check_validity(fp: Union[str, os.PathLike]) -> None:
 
 def read_lines_from_txt_output_parse_tree(fp: [str, os.PathLike]) -> None:
     lines = read_lines_from_txt(fp)
-    for line in lines:
-        tokens = parse_tokens(line)
+    for l in lines:
+        tokens = parse_tokens(l)
         if tokens:
-            parse_tree = build_parse_tree(tokens)
-            parse_tree.print_tree()
-        else:
-            print(f"Error parsing line: {line}")
-
+            print("\n")
+            parse_tree2 = build_parse_tree(tokens)
+            parse_tree2.print_tree()
 
 
 def build_parse_tree_rec(tokens: List[str]) -> Node:
