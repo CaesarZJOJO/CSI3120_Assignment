@@ -18,7 +18,6 @@ def read_lines_from_txt(fp: Union[str, os.PathLike]) -> List[str]:
     with open(fp, "r") as f:
         return [line.strip() for line in f.readlines()]
 
-
 def is_valid_var_name(s: str) -> bool:
     """
     :param s: Candidate input variable name
@@ -32,7 +31,35 @@ def is_valid_var_name(s: str) -> bool:
             return False
     return True
 
+class Node:
+    """
+    Nodes in a parse tree
+    Attributes:
+        elem: a list of strings
+        children: a list of child nodes
+    """
+    def __init__(self, elem: List[str] = None):
+        self.elem = elem
+        self.children = []
 
+    def add_child_node(self, node: 'Node') -> None:
+        self.children.append(node)
+
+class ParseTree:
+    """
+    A full parse tree, with nodes
+    Attributes:
+        root: the root of the tree
+    """
+    def __init__(self, root):
+        self.root = root
+
+    def print_tree(self, node: Optional[Node] = None, level: int = 0) -> None:
+        if node is None:
+            node = self.root
+        print('  ' * level + f"{node.elem}")
+        for child in node.children:
+            self.print_tree(child, level + 1)
 
 def parse_tokens(s_: str) -> Union[List[str], bool]:
     """
@@ -204,18 +231,6 @@ def parse_tokens(s_: str) -> Union[List[str], bool]:
 
     return tokens
 
-
-
-
-
-
-
-
-
-
-
-
-
 def read_lines_from_txt_check_validity(fp: Union[str, os.PathLike]) -> None:
     """
     Reads each line from a .txt file, and then
@@ -235,11 +250,59 @@ def read_lines_from_txt_check_validity(fp: Union[str, os.PathLike]) -> None:
     else:
         print(f"Some lines are invalid")
 
+def read_lines_from_txt_output_parse_tree(fp: Union[str, os.PathLike]) -> None:
+    """
+        Reads each line from a .txt file, and then
+        parses each string to yield a tokenized output string, to be used in constructing a parse tree. The
+        parse tree should call print_tree() to print its content to the console.
+        In the case of a non-valid line, the corresponding error message is printed (not necessarily within
+        this function, but possibly within the parse_tokens function).
+        :param fp: The file path of the lines to parse
+        """
+    lines = read_lines_from_txt(fp)
+    for l in lines:
+        tokens = parse_tokens(l)
+        if tokens:
+            print("\n")
+            parse_tree2 = build_parse_tree(tokens)
+            parse_tree2.print_tree()
+
+def build_parse_tree_rec(tokens: List[str], node: Optional[Node] = None) -> Node:
+    """
+    An inner recursive inner function to build a parse tree
+    :param tokens: A list of token strings
+    :param node: A Node object
+    :return: a node with children whose tokens are variables, parenthesis, slashes, or the inner part of an expression
+    """
+    if node is None:
+        node = Node([])
+
+    while tokens:
+        token = tokens.pop(0)
+        if token == '(':  # Start of a new sub-expression
+            child_node = Node(['('])
+            child_node.add_child_node(build_parse_tree_rec(tokens))
+            node.add_child_node(child_node)
+        elif token == ')':  # End of the current sub-expression
+            return node
+        else:  # Regular token or lambda variable
+            node.add_child_node(Node([token]))
+
+    return node
+
+def build_parse_tree(tokens: List[str]) -> ParseTree:
+    """
+    Build a parse tree from a list of tokens
+    :param tokens: List of tokens
+    :return: parse tree
+    """
+    pt = ParseTree(build_parse_tree_rec(tokens))
+    return pt
 
 if __name__ == "__main__":
 
-    print("\n\nChecking valid examples...")
+    print("Checking valid examples...")
     read_lines_from_txt_check_validity(valid_examples_fp)
-
-    print("Checking invalid examples...")
+    read_lines_from_txt_output_parse_tree(valid_examples_fp)
+    print("\nChecking invalid examples...")
     read_lines_from_txt_check_validity(invalid_examples_fp)

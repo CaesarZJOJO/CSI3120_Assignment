@@ -1,0 +1,332 @@
+Checking valid examples...
+The tokenized string for input string a \x(x b) is a_\_x_(_x_b_)
+The tokenized string for input string a b is a_b
+The tokenized string for input string a b c is a_b_c
+The tokenized string for input string a (b c) is a_(_b_c_)
+The tokenized string for input string \x.\y.x y is \_x_(_\_y_(_x_y_)_)
+The tokenized string for input string \x (x b) is \_x_(_x_b_)
+The tokenized string for input string \x(x b) is \_x_(_x_b_)
+The tokenized string for input string \x (x (b c)) is \_x_(_x_(_b_c_)_)
+The tokenized string for input string \x (x b c) is \_x_(_x_b_c_)
+The tokenized string for input string (a) is (_a_)
+The tokenized string for input string \x.(x z) is \_x_(_(_x_z_)_)
+The tokenized string for input string (\x a b) is (_\_x_a_b_)
+The tokenized string for input string \x.x y z is \_x_(_x_y_z_)
+The tokenized string for input string \x.a bcd is \_x_(_a_bcd_)
+The tokenized string for input string \x a b is \_x_a_b
+The tokenized string for input string (\x a b) is (_\_x_a_b_)
+The tokenized string for input string \x((a) (b)) is \_x_(_(_a_)_(_b_)_)
+The tokenized string for input string \x (a) is \_x_(_a_)
+The tokenized string for input string \x. a b is \_x_(_a_b_)
+The tokenized string for input string (a) (b) (\x(x b)) (\x(x yz)) is (_a_)_(_b_)_(_\_x_(_x_b_)_)_(_\_x_(_x_yz_)_)
+The tokenized string for input string (a b) is (_a_b_)
+The tokenized string for input string (a) (b) is (_a_)_(_b_)
+The tokenized string for input string (a) (b) (c) (d) is (_a_)_(_b_)_(_c_)_(_d_)
+All lines are valid
+
+
+a_\_x_(_x_b_)
+----a
+----\_x_(_x_b_)
+--------\
+--------x
+--------(_x_b_)
+------------(
+------------x_b
+----------------x
+----------------b
+------------)
+
+
+a_b
+----a
+----b
+
+
+a_b_c
+----a
+----b
+----c
+
+
+a_(_b_c_)
+----a
+----(_b_c_)
+--------(
+--------b_c
+------------b
+------------c
+--------)
+
+
+\_x_(_\_y_(_x_y_)_)
+----\
+----x
+----(_\_y_(_x_y_)_)
+--------(
+--------\_y_(_x_y_)
+------------\
+------------y
+------------(_x_y_)
+----------------(
+----------------x_y
+--------------------x
+--------------------y
+----------------)
+--------)
+
+
+\_x_(_x_b_)
+----\
+----x
+----(_x_b_)
+--------(
+--------x_b
+------------x
+------------b
+--------)
+
+
+\_x_(_x_b_)
+----\
+----x
+----(_x_b_)
+--------(
+--------x_b
+------------x
+------------b
+--------)
+
+
+\_x_(_x_(_b_c_)_)
+----\
+----x
+----(_x_(_b_c_)_)
+--------(
+--------x_(_b_c_)
+------------x
+------------(_b_c_)
+----------------(
+----------------b_c
+--------------------b
+--------------------c
+----------------)
+--------)
+
+
+\_x_(_x_b_c_)
+----\
+----x
+----(_x_b_c_)
+--------(
+--------x_b_c
+------------x
+------------b
+------------c
+--------)
+
+
+(_a_)
+----(
+----a
+----)
+
+
+\_x_(_(_x_z_)_)
+----\
+----x
+----(_(_x_z_)_)
+--------(
+--------(_x_z_)
+------------(
+------------x_z
+----------------x
+----------------z
+------------)
+--------)
+
+
+(_\_x_a_b_)
+----(
+----\_x_a_b
+--------\
+--------x
+--------a
+--------b
+----)
+
+
+\_x_(_x_y_z_)
+----\
+----x
+----(_x_y_z_)
+--------(
+--------x_y_z
+------------x
+------------y
+------------z
+--------)
+
+
+\_x_(_a_bcd_)
+----\
+----x
+----(_a_bcd_)
+--------(
+--------a_bcd
+------------a
+------------bcd
+--------)
+
+
+\_x_a_b
+----\
+----x
+----a
+----b
+
+
+(_\_x_a_b_)
+----(
+----\_x_a_b
+--------\
+--------x
+--------a
+--------b
+----)
+
+
+\_x_(_(_a_)_(_b_)_)
+----\
+----x
+----(_(_a_)_(_b_)_)
+--------(
+--------(_a_)_(_b_)
+------------(_a_)
+----------------(
+----------------a
+----------------)
+------------(_b_)
+----------------(
+----------------b
+----------------)
+--------)
+
+
+\_x_(_a_)
+----\
+----x
+----(_a_)
+--------(
+--------a
+--------)
+
+
+\_x_(_a_b_)
+----\
+----x
+----(_a_b_)
+--------(
+--------a_b
+------------a
+------------b
+--------)
+
+
+(_a_)_(_b_)_(_\_x_(_x_b_)_)_(_\_x_(_x_yz_)_)
+----(_a_)
+--------(
+--------a
+--------)
+----(_b_)
+--------(
+--------b
+--------)
+----(_\_x_(_x_b_)_)
+--------(
+--------\_x_(_x_b_)
+------------\
+------------x
+------------(_x_b_)
+----------------(
+----------------x_b
+--------------------x
+--------------------b
+----------------)
+--------)
+----(_\_x_(_x_yz_)_)
+--------(
+--------\_x_(_x_yz_)
+------------\
+------------x
+------------(_x_yz_)
+----------------(
+----------------x_yz
+--------------------x
+--------------------yz
+----------------)
+--------)
+
+
+(_a_b_)
+----(
+----a_b
+--------a
+--------b
+----)
+
+
+(_a_)_(_b_)
+----(_a_)
+--------(
+--------a
+--------)
+----(_b_)
+--------(
+--------b
+--------)
+
+
+(_a_)_(_b_)_(_c_)_(_d_)
+----(_a_)
+--------(
+--------a
+--------)
+----(_b_)
+--------(
+--------b
+--------)
+----(_c_)
+--------(
+--------c
+--------)
+----(_d_)
+--------(
+--------d
+--------)
+
+
+Checking invalid examples...
+Bracket ( at index: 2 is not matched with a closing bracket ')'.
+Invalid lambda expression at 0.
+Missing complete lambda expression starting at index 4.
+Bracket ( at index: 1 is not matched with a closing bracket ')'.
+Missing expression for parenthesis at index 0.
+Bracket ( at index: 2 is not matched with a closing bracket ')'.
+Bracket ) at index: 7 is not matched with an opening bracket '('.
+Encountered dot at invalid index 0.
+Bracket ( at index: 0 is not matched with a closing bracket ')'.
+Bracket ) at index: 0 is not matched with an opening bracket '('.
+Error at index 0, variables cannot begin with digits.
+Invalid space inserted after \ at index 0.
+Invalid space inserted after \ at index 0.
+Missing complete lambda expression starting at index 0.
+Bracket ( at index: 0 is not matched with a closing bracket ')'.
+Bracket ) at index: 0 is not matched with an opening bracket '('.
+Must have a variable name before character '.' at index 0.
+Must have a variable name before character '.' at index 2.
+Invalid space inserted after \ at index 0.
+Error at index 0 with invalid character +.
+Invalid lambda expression at 0.
+Invalid space inserted after \ at index 0.
+Backlashes not followed by a variable name at 0.

@@ -18,7 +18,6 @@ def read_lines_from_txt(fp: [str, os.PathLike]) -> List[str]:
     # TODO
     return []
 
-
 def is_valid_var_name(s: str) -> bool:
     """
     :param s: Candidate input variable name
@@ -73,33 +72,9 @@ def parse_tokens(s_: str) -> Union[List[str], bool]:
     """
 
     s = s_[:]  #  Don't modify the original input string
+    # TODO
 
-    s = s_.replace(" ", "")  # Remove all whitespace
-    tokens = []
-    i = 0
-
-    while i < len(s):
-        char = s[i]
-
-        if char == '(' or char == ')':  # Parentheses
-            tokens.append(char)
-            i += 1
-        elif char == '\\':  # Lambda
-            tokens.append(char)
-            i += 1
-        elif char == '.':  # Dot
-            tokens.append(char)
-            i += 1
-        elif char.isalpha():  # Variable starting with a letter
-            var_name = char
-            i += 1
-            while i < len(s) and s[i].isalnum():  # Collect the rest of the alphanumeric variable name
-                var_name += s[i]
-                i += 1
-            tokens.append(var_name)
-        else:
-            return False  # Invalid character
-    return tokens
+    return []
 
 
 def read_lines_from_txt_check_validity(fp: [str, os.PathLike]) -> None:
@@ -119,8 +94,6 @@ def read_lines_from_txt_check_validity(fp: [str, os.PathLike]) -> None:
             print(f"The tokenized string for input string {l} is {'_'.join(tokens)}")
     if len(valid_lines) == len(lines):
         print(f"All lines are valid")
-
-
 
 def read_lines_from_txt_output_parse_tree(fp: [str, os.PathLike]) -> None:
     """
@@ -165,12 +138,6 @@ def build_parse_tree(tokens: List[str]) -> ParseTree:
 
 
 if __name__ == "__main__":
-    test_expression = "\\x. (a b)"
-    tokens = parse_tokens(test_expression)
-    if tokens:
-        print(f"Tokens for expression '{test_expression}': {tokens}")
-    else:
-        print(f"Invalid expression: {test_expression}")
 
     print("\n\nChecking valid examples...")
     read_lines_from_txt_check_validity(valid_examples_fp)
