@@ -56,21 +56,20 @@ class ParseTree:
         self.root = root
 
     def print_tree(self, node: Optional[Node] = None, level: int = 0) -> None:
-        # If no node is provided, start from the root
+        #start from the root
         if node is None:
             node = self.root
-                # Only print the three empty lines for the root (when level == 0)
         if level == 0:
             print("\n" * 3, end="")
 
         # Join the elements of the node to form a single string, using '_' as a separator
         node_str = "_".join(node.elem)
 
-        # Print the current node with indentation based on the level in the tree
+        # Print the current node
         if node_str !="":
             print("----" * level + node_str)
 
-        # Recursively print each child node, increasing the level by 1
+        # Recursively print each child node
         for child in node.children:
             self.print_tree(child, level + 1)
 
@@ -88,17 +87,17 @@ def parse_tokens(s_: str) -> Union[List[str], bool]:
     :param s_: the input string
     :return: A List of tokens (strings) if a valid input, otherwise False
     """
-    s = s_.strip()  # Trim leading and trailing spaces
+    s = s_.strip() 
     tokens = []
     i = 0
-    open_brackets = 0  # To track open parentheses
-    last_token_was_lambda = False  # To track if the last token was a lambda
-    dot_opened_paren = False  # To track if a parenthesis was opened by a dot
-    error_a = error_b = error_c = error_d = error_e = error_f = None  # Initialize error variables
+    open_brackets = 0  #track open parentheses
+    last_token_was_lambda = False  #track if the last token was a lambda
+    dot_opened_paren = False  #track if a parenthesis was opened by a dot
+    error_a = error_b = error_c = error_d = error_e = error_f = None  #initialize error variables
     error_1 = error_2 = None
 
     while i < len(s):
-        if s[i] == '\\':  # Lambda abstraction
+        if s[i] == '\\': 
             tokens.append('\\')
             last_token_was_lambda = True
             i += 1
@@ -113,7 +112,7 @@ def parse_tokens(s_: str) -> Union[List[str], bool]:
                 error_f = f"Backslash not followed by a variable name at index {i - 1}."
                 break
 
-            # Proceed to parse variable if no errors so far
+            # Proceed to parse variable if no errors
             var_start = i
             while i < len(s) and s[i] in var_chars:
                 i += 1
@@ -130,12 +129,12 @@ def parse_tokens(s_: str) -> Union[List[str], bool]:
             # Handle case with space after variable, then parentheses
             if i < len(s) and s[i] == ' ':
                 i += 1
-                if i < len(s) and s[i] == '(':  # Allow parentheses after space
+                if i < len(s) and s[i] == '(': 
                     continue
                 elif i >= len(s):  # If there's nothing after the space
                     error_d = f"Invalid lambda expression at {var_start - 1}."
 
-        elif s[i] in alphabet_chars:  # Variable name
+        elif s[i] in alphabet_chars:  #Variable
             var_start = i
             while i < len(s) and s[i] in var_chars:
                 i += 1
@@ -152,12 +151,12 @@ def parse_tokens(s_: str) -> Union[List[str], bool]:
             i += 1
             last_token_was_lambda = False
 
-            # Check if the next character is a closing parenthesis, indicating empty parentheses
+            #Check if the next character is a closing parenthesis, indicating empty parentheses
             if i < len(s) and s[i] == ')':
                 print(f"Missing expression for parenthesis at index {i - 1}.")
                 return False
 
-            # Check if the entire string will have a matching closing parenthesis
+            #Check if the entire string will have a matching closing parenthesis
             if ')' not in s[i:]:
                 print(f"Bracket ( at index {i - 1} is not matched with a closing bracket ')'.")
                 return False
@@ -173,8 +172,8 @@ def parse_tokens(s_: str) -> Union[List[str], bool]:
 
         
 
-        elif s[i] == '.':  # Handle dot
-            # Check if there's a space before the dot (invalid usage)
+        elif s[i] == '.':  # dot
+            # Check if there's a space before the dot
             if i > 0 and s[i - 1] == ' ':
                 print(f"Must have a variable name before character '.' at index {i-1}.")
                 return False
@@ -265,17 +264,19 @@ def read_lines_from_txt_check_validity(fp: Union[str, os.PathLike]) -> None:
 
 def read_lines_from_txt_output_parse_tree(fp: [str, os.PathLike]) -> None:
     lines = read_lines_from_txt(fp)
-    for l in lines:
-        tokens = parse_tokens(l)
+    for line in lines:
+        tokens = parse_tokens(line)
         if tokens:
-            print("\n")
-            parse_tree2 = build_parse_tree(tokens)
-            parse_tree2.print_tree()
+            parse_tree = build_parse_tree(tokens)
+            parse_tree.print_tree()
+        else:
+            print(f"Error parsing line: {line}")
+
 
 
 def build_parse_tree_rec(tokens: List[str]) -> Node:
-    # Root node with all tokens
-    root = Node(elem=tokens.copy())  # Copy tokens to avoid modifying the original list
+    # Root
+    root = Node(elem=tokens.copy())  # Copy tokens
 
     def parse(tokens: List[str], node: Node):
         while tokens:
@@ -299,7 +300,7 @@ def build_parse_tree_rec(tokens: List[str]) -> Node:
             
             elif token == '\\':  # Handling the lambda expression if it appears first
                 
-                lvar = tokens.pop(0)  # The variable after '\'
+                lvar = tokens.pop(0)  # variable after '\'
 
                 # Add '\' and 'lvar' as separate child nodes
                 node.add_child_node(Node([token]))  # '\' as a child
